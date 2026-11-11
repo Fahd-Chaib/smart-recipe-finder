@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import ast
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -11,7 +12,14 @@ client = MongoClient(MONGO_URI)
 db = client["smart_recipe_db"]
 col = db["recipes"]
 
-CSV_PATH = r"C:\Users\fidou\Downloads\smart_recipe_finder\sample_recipes.csv"
+# CSV location: first command-line argument, else the CSV_PATH environment
+# variable, else sample_recipes.csv at the repository root.
+_DEFAULT_CSV = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), os.pardir, "sample_recipes.csv"
+)
+CSV_PATH = os.path.normpath(
+    sys.argv[1] if len(sys.argv) > 1 else os.getenv("CSV_PATH", _DEFAULT_CSV)
+)
 
 # Matches your real line format (verified on your uploaded file)
 LINE_RE = re.compile(
